@@ -626,7 +626,7 @@ static int srv_listen(struct ServerSettings settings)
     if (!settings.port)
         settings.port = "8080";
     if (!settings.timeout)
-        settings.timeout = 5;
+        settings.timeout = 1;
     if (!settings.threads || settings.threads <= 0)
         settings.threads = 1;
     if (!settings.processes || settings.processes <= 0)

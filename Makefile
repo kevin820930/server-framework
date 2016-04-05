@@ -13,6 +13,12 @@ CC ?= gcc
 CFLAGS = -std=gnu99 -Wall -O2 -g -I .
 LDFLAGS = -lpthread
 
+ifeq ($(strip $(PROFILE)),1)
+PROF_FLAGS = -pg
+CFLAGS += $(PROF_FLAGS)
+LDFLAGS += $(PROF_FLAGS) 
+endif
+
 OBJS := \
 	async.o \
 	reactor.o \
@@ -40,6 +46,7 @@ doc:
 clean:
 	$(RM) $(EXEC) $(OBJS) $(deps)
 	@rm -rf $(OUT)
+	rm gmon.out
 
 distclean: clean
 	rm -rf html
