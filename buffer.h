@@ -106,7 +106,7 @@ extern const struct BufferClass {
      */
     void (*set_whook)(void *buffer,
                       ssize_t (*writing_hook)(server_pt srv, int fd,
-                                              void *data, size_t len));
+                              void *data, size_t len));
 
     /**
      * \brief Flush the buffer data through the socket

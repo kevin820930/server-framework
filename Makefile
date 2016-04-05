@@ -40,6 +40,12 @@ $(OUT)/%.o: %.c
 $(OUT):
 	@mkdir -p $@
 
+gptest300:
+	@ab -c 32 -n 300 http://localhost:8080/
+gptest100:
+	@ab -c 32 -n 100 http://localhost:8080/
+
+
 doc:
 	@doxygen
 

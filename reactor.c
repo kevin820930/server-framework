@@ -30,9 +30,9 @@ int set_fd_polling(int queue, int fd, int action, long milliseconds)
     if (milliseconds) {
         struct itimerspec newtime;
         newtime.it_value.tv_sec = newtime.it_interval.tv_sec =
-                                  milliseconds / 1000;
+                                      milliseconds / 1000;
         newtime.it_value.tv_nsec = newtime.it_interval.tv_nsec =
-                                  (milliseconds % 1000) * 1000000;
+                                       (milliseconds % 1000) * 1000000;
         timerfd_settime(fd, 0, &newtime, NULL);
     }
     return epoll_ctl(queue, action, fd, &chevent);
@@ -137,7 +137,7 @@ int reactor_init(struct Reactor *reactor)
     PRIV(reactor)->events = calloc(sizeof(struct epoll_event),
                                    REACTOR_MAX_EVENTS);
     if (!PRIV(reactor)->reactor_fd || !PRIV(reactor)->map ||
-        !PRIV(reactor)->events) {
+            !PRIV(reactor)->events) {
         reactor_destroy(reactor);
         return -1;
     }

@@ -85,7 +85,7 @@ struct Server {
      * timeout.
      */
     unsigned char *tout;
- 
+
     /**
      * map all connection's idle cycle count values. use idle[fd] to
      * get/set the count.
@@ -201,7 +201,7 @@ static int each(struct Server *server, int origin_fd,
                              int target_fd, void *arg),
                 void *arg,
                 void (*on_finish)(struct Server *server,
-                                 int origin_fd, void *arg));
+                                  int origin_fd, void *arg));
 static int each_block(struct Server *server, int origin_fd,
                       char *service,
                       void (*task)(struct Server *server,
@@ -318,17 +318,17 @@ static void tp_perform_on_close(struct Server *self, int fd)
 
 /* create a new TimeProtocol object */
 static struct TimerProtocol *TimerProtocol(void *task, void *arg,
-                                           int repetitions)
+        int repetitions)
 {
     struct TimerProtocol *tp = malloc(sizeof(struct TimerProtocol));
 
     *tp = (struct TimerProtocol) {
         .parent.on_data = tp_perform_on_data,
-        .parent.on_close = tp_perform_on_close,
-        .parent.service = timer_protocol_name,
-        .task = task,
-        .arg = arg,
-        .repeat = repetitions - 1
+                .parent.on_close = tp_perform_on_close,
+                        .parent.service = timer_protocol_name,
+                                .task = task,
+                                 .arg = arg,
+                                  .repeat = repetitions - 1
     };
     return tp;
 }
@@ -526,7 +526,7 @@ static void async_on_data(server_pt *p_server)
     if (!(*p_server)) return;
 
     int sockfd = p_server - (*p_server)->server_map;
-     /* if we get the handle, perform the task */
+    /* if we get the handle, perform the task */
     if (set_to_busy(*p_server, sockfd)) {
         struct Protocol *protocol = (*p_server)->protocol_map[sockfd];
         if (!protocol || !protocol->on_data) return;
@@ -585,15 +585,16 @@ static void srv_cycle_core(server_pt server)
         int delta = _reactor_(server)->last_tick - server->last_to;
         for (long i = 3; i <= _reactor_(server)->maxfd; i++) {
             if (server->protocol_map[i] && fcntl(i, F_GETFL) < 0 &&
-                errno == EBADF) {
+                    errno == EBADF) {
                 reactor_close(_reactor_(server), i);
             }
             if (server->tout[i]) {
                 if (server->tout[i] > server->idle[i])
                     server->idle[i] += server->idle[i] ? delta : 1;
+                //server->idle[i] +=delta;
                 else {
                     if (server->protocol_map[i] &&
-                        server->protocol_map[i]->ping)
+                            server->protocol_map[i]->ping)
                         server->protocol_map[i]->ping(server, i);
                     else if (!server->busy[i] || server->idle[i] == 255)
                         reactor_close(_reactor_(server), i);
@@ -604,8 +605,8 @@ static void srv_cycle_core(server_pt server)
         server->last_to = _reactor_(server)->last_tick;
     }
     if (server->run &&
-        Async.run(server->async,
-                  (void (*)(void *)) srv_cycle_core, server)) {
+            Async.run(server->async,
+                      (void (*)(void *)) srv_cycle_core, server)) {
         perror(
             "FATAL ERROR:"
             "couldn't schedule the server's reactor in the task queue");
@@ -626,7 +627,7 @@ static int srv_listen(struct ServerSettings settings)
     if (!settings.port)
         settings.port = "8080";
     if (!settings.timeout)
-        settings.timeout = 1;
+        settings.timeout = 5;
     if (!settings.threads || settings.threads <= 0)
         settings.threads = 1;
     if (!settings.processes || settings.processes <= 0)
@@ -855,14 +856,14 @@ static long srv_count(struct Server *server, char *service)
     if (service) {
         for (int i = 0; i < server->capacity; i++) {
             if (server->protocol_map[i] &&
-                (server->protocol_map[i]->service == service ||
-                !strcmp(server->protocol_map[i]->service, service)))
+                    (server->protocol_map[i]->service == service ||
+                     !strcmp(server->protocol_map[i]->service, service)))
                 c++;
         }
     } else {
         for (int i = 0; i < server->capacity; i++) {
             if (server->protocol_map[i] &&
-                server->protocol_map[i]->service != timer_protocol_name)
+                    server->protocol_map[i]->service != timer_protocol_name)
                 c++;
         }
     }
@@ -1184,9 +1185,9 @@ static int each_block(struct Server *server, int fd_org,
     if (service) {
         for (int i = 0; i < server->capacity; i++) {
             if (i != fd_org && server->protocol_map[i] &&
-                server->protocol_map[i]->service &&
-                (server->protocol_map[i]->service == service ||
-                !strcmp(server->protocol_map[i]->service, service))) {
+                    server->protocol_map[i]->service &&
+                    (server->protocol_map[i]->service == service ||
+                     !strcmp(server->protocol_map[i]->service, service))) {
                 task(server, i, arg);
                 ++c;
             }
@@ -1194,7 +1195,7 @@ static int each_block(struct Server *server, int fd_org,
     } else {
         for (int i = 0; i < server->capacity; i++) {
             if (i != fd_org && server->protocol_map[i] &&
-                server->protocol_map[i]->service != timer_protocol_name) {
+                    server->protocol_map[i]->service != timer_protocol_name) {
                 task(server, i, arg);
                 ++c;
             }
@@ -1216,8 +1217,8 @@ static int fd_task(struct Server *server, int sockfd,
 
         *msg = (struct FDTask) {
             .server = server,
-            .task = task, .arg = arg,
-            .fallback = fallback
+             .task = task, .arg = arg,
+              .fallback = fallback
         };
         Async.run(server->async,
                   (void (*)(void *)) &perform_fd_task, msg);
@@ -1311,7 +1312,7 @@ static void srv_stop(server_pt srv)
 
     /* the server wasn't in the registry - we shouldn't stop it again. */
     srv = NULL;
-/* send a signal to the server, if it was in the registry */
+    /* send a signal to the server, if it was in the registry */
 sig_srv:
     if (srv) {
         /* close the listening socket, preventing new connections

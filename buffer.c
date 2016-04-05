@@ -136,8 +136,8 @@ static inline void *create_buffer(server_pt owner)
 
     *buffer = (struct Buffer) {
         .id = is_buffer,
-        .sent = 0, .packet = NULL,
-        .owner = owner,
+         .sent = 0, .packet = NULL,
+          .owner = owner,
     };
 
     if (pthread_mutex_init(&buffer->lock, NULL)) {
@@ -195,7 +195,7 @@ insert_packets_to_buffer(struct Buffer *buffer, struct Packet *packet,
     struct Packet *tail, **pos = &(buffer->packet);
     if (urgent) {
         while (*pos && (!(*pos)->next ||
-               !(*pos)->next->metadata.can_interrupt))
+                        !(*pos)->next->metadata.can_interrupt))
             pos = &((*pos)->next);
     } else {
         while (*pos)
@@ -222,7 +222,7 @@ size_t buffer_move_logic(void *buf, void *data,
         /* FIXME: warn the messages:
          * "Buffer: Canot move data because either length (%lu) or
          *  data (%p) are "invalid\n", length, data
-	 */
+        */
         return 0;
     }
     struct Packet *np = get_packet();
@@ -259,14 +259,14 @@ buffer_copy_logic(void *buf, void *data,
         /* FIXME: warn the message
          * "Buffer: Canot copy data because either length (%lu) or
          * data (%p) are invalid\n", length, data
-	     */
+         */
         return 0;
     }
     size_t to_copy = length;
     struct Packet *np = get_packet();
     if (!np) {
         /* FIXME: warn the message
-	     * "Couldn't allocate memory for the buffer (on copy)"
+         * "Couldn't allocate memory for the buffer (on copy)"
          */
         return 0;
     }

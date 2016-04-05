@@ -242,7 +242,7 @@ extern const struct __SERVER_API__ {
      * resources asynchronously.
      */
     int (*attach)(struct Server *server, int sockfd,
-	              struct Protocol *protocol);
+                  struct Protocol *protocol);
 
     /**
      * \brief Close the connection.
@@ -348,9 +348,9 @@ extern const struct __SERVER_API__ {
      */
     void (*rw_hooks)(server_pt srv, int sockfd,
                      ssize_t (*reading_hook)(server_pt srv, int fd,
-                              void *buffer, size_t size),
+                             void *buffer, size_t size),
                      ssize_t (*writing_hook)(server_pt srv, int fd,
-                              void *data, size_t len));
+                             void *data, size_t len));
 
     /**
      * \brief Read up to `max_len` of data from a socket.
