@@ -62,7 +62,7 @@ extern struct __ASYNC_API__ {
      *        in the thread pool).
      *
      * This function will wait forever or until a signal is received and
-     * all the tasks in the queue have been processed .
+     * all the tasks in the queue have been processed.
      *
      * Use:
      * @code

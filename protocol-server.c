@@ -534,6 +534,12 @@ static void async_on_data(server_pt *p_server)
         protocol->on_data((*p_server), sockfd);
         // release the handle
         (*p_server)->busy[sockfd] = 0;
+        //printf("first map %s \n",(*p_server)->protocol_map[sockfd]->service);
+        /*if((*p_server)->protocol_map[sockfd]->service !=  timer_protocol_name)
+        {
+            printf("map %s \n",(*p_server)->protocol_map[sockfd]->service);
+        reactor_close(_reactor_(*p_server), sockfd);
+        }*/
         return;
     }
     /* we didn't get the handle, reschedule - but only if the connection
@@ -580,29 +586,34 @@ static void srv_cycle_core(server_pt server)
     } else
         idle_performed = 0;
     /* timeout + local close management */
-    if (server->last_to != _reactor_(server)->last_tick) {
+   if (server->last_to != _reactor_(server)->last_tick) {
         /* We use the delta with fuzzy logic (only after the first second) */
         int delta = _reactor_(server)->last_tick - server->last_to;
         for (long i = 3; i <= _reactor_(server)->maxfd; i++) {
             if (server->protocol_map[i] && fcntl(i, F_GETFL) < 0 &&
-                    errno == EBADF) {
+                errno == EBADF) {
                 reactor_close(_reactor_(server), i);
             }
             if (server->tout[i]) {
-                if (server->tout[i] > server->idle[i])
+                reactor_close(_reactor_(server), i);
+                if (server->protocol_map[i] &&
+                        server->protocol_map[i]->ping)
+                        server->protocol_map[i]->ping(server, i);
+                /*if (server->tout[i] > server->idle[i])
                     server->idle[i] += server->idle[i] ? delta : 1;
-                //server->idle[i] +=delta;
                 else {
                     if (server->protocol_map[i] &&
-                            server->protocol_map[i]->ping)
+                        server->protocol_map[i]->ping)
                         server->protocol_map[i]->ping(server, i);
-                    else if (!server->busy[i] || server->idle[i] == 255)
+                    else if (!server->busy[i] || server->idle[i] == 255){
                         reactor_close(_reactor_(server), i);
-                }
+                        printf("close  2\n");
+                    }
+                }*/
             }
         }
-        /* ready for next call */
         server->last_to = _reactor_(server)->last_tick;
+        printf("close  3\n");
     }
     if (server->run &&
             Async.run(server->async,
@@ -613,7 +624,6 @@ static void srv_cycle_core(server_pt server)
         exit(1);
     }
 }
-
 static int srv_listen(struct ServerSettings settings)
 {
     /* review the settings, setup defaults when something's missing */
@@ -1181,6 +1191,7 @@ static int each_block(struct Server *server, int fd_org,
                                    int fd, void *arg),
                       void *arg)
 {
+    
     int c = 0;
     if (service) {
         for (int i = 0; i < server->capacity; i++) {
